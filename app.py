@@ -1,82 +1,98 @@
 import streamlit as st
 import time
 
-# Configuración de la pestaña
-st.set_page_config(page_title="Copiloto Psicopedagógico IA", page_icon="🧠", layout="wide")
+# --- 1. CONFIGURACIÓ DE LA PÀGINA ---
+st.set_page_config(page_title="Sistema Psico-IA", page_icon="🧠", layout="wide")
 
-# Estilo personalizado con CSS simple
-st.markdown("""
-    <style>
-    .main { background-color: #f5f7f9; }
-    .stButton>button { width: 100%; background-color: #4CAF50; color: white; }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Encabezado
-st.title("🧠 Asistente de Informes Inteligente")
-st.subheader("Centro Psicopedagógico")
-st.markdown("---")
-
-# Layout de dos columnas
-col_input, col_output = st.columns([1, 1])
-
-with col_input:
-    st.header("📥 Entrada de Datos")
+# --- 2. FUNCIÓ DE CONTROL D'ACCÉS (LOGIN) ---
+def check_password():
+    """Retorna True si l'usuari ha introduït les credencials correctes."""
     
-    with st.expander("1. Identificación del Niño", expanded=True):
-        nombre = st.text_input("Nombre Completo")
-        edad = st.number_input("Edad", min_value=0, max_value=18, value=8)
-        escolaridad = st.selectbox("Curso", ["Pre-Kinder", "Kinder", "1° Básico", "2° Básico", "3° Básico", "4° Básico"])
-
-    with st.expander("2. Observaciones de la Sesión", expanded=True):
-        obs = st.text_area("Notas rápidas (Ej: se distrae fácil, buena memoria visual...)", height=150)
-
-    with st.expander("3. Resultados de Tests"):
-        c1, c2 = st.columns(2)
-        wisc = c1.number_input("WISC-V (Puntaje Total)", 0, 160, 90)
-        lectura = c2.selectbox("Nivel Lectura", ["Bajo", "Medio-Bajo", "Adecuado", "Superior"])
-
-    # Botón de acción
-    boton_ia = st.button("✨ GENERAR INFORME PROFESIONAL")
-
-with col_output:
-    st.header("📄 Borrador del Informe")
-    
-    if boton_ia:
-        if not nombre or not obs:
-            st.warning("Por favor, ingresa el nombre y las observaciones primero.")
+    def password_entered():
+        # AQUÍ dónes l'usuari i la clau que vulguis (pots canviar-les)
+        if st.session_state["username"] == "admin" and st.session_state["password"] == "centro2026":
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Esborra la contrasenya de la memòria per seguretat
+            del st.session_state["username"]
         else:
-            with st.spinner('La IA está redactando el informe siguiendo el formato del centro...'):
-                time.sleep(3) # Simulamos el tiempo de procesamiento de la IA
-                
-                # Esto es lo que vería el profesional (Simulado por ahora)
-                st.success("¡Informe generado!")
-                informe_final = f"""
-                **INFORME PSICOPEDAGÓGICO**
-                
-                **I. IDENTIFICACIÓN**
-                - **Nombre:** {nombre}
-                - **Edad:** {edad} años
-                - **Curso:** {escolaridad}
-                
-                **II. CONDUCTA OBSERVADA**
-                Durante la sesión, el evaluado presentó el siguiente perfil: {obs}.
-                
-                **III. ANÁLISIS DE RESULTADOS**
-                En la evaluación psicométrica, se obtuvo un puntaje de {wisc} en el test WISC-V. 
-                En cuanto a la lectoescritura, se sitúa en un nivel {lectura}.
-                
-                **IV. SUGERENCIAS**
-                - Reforzar autonomía en tareas escolares.
-                - Adecuaciones curriculares en el área de lenguaje.
-                """
-                st.markdown(informe_final)
-                
-                # Opciones de exportación
-                st.download_button("📥 Descargar como PDF (Simulado)", "Contenido del informe", file_name=f"Informe_{nombre}.pdf")
-    else:
-        st.info("Ingresa los datos a la izquierda y presiona el botón para ver la magia.")
+            st.session_state["password_correct"] = False
 
-# Pie de página
-st.markdown("---")
-st.caption("Desarrollado para la optimización de procesos clínicos - 2026")
+    if "password_correct" not in st.session_state:
+        # Pantalla inicial de Login
+        st.title("🔐 Accés al Sistema Psico-IA")
+        st.subheader("Si us plau, identifica't per continuar")
+        st.text_input("Usuari", key="username")
+        st.text_input("Contrasenya", type="password", key="password")
+        st.button("Entrar", on_click=password_entered)
+        return False
+    
+    elif not st.session_state["password_correct"]:
+        # Si s'equivoca de contrasenya
+        st.title("🔐 Accés al Sistema Psico-IA")
+        st.text_input("Usuari", key="username")
+        st.text_input("Contrasenya", type="password", key="password")
+        st.button("Entrar", on_click=password_entered)
+        st.error("❌ Usuari o contrasenya incorrectes")
+        return False
+    
+    else:
+        return True
+
+# --- 3. CONTINGUT DE LA PÀGINA WEB (Només es veu si el login és correcte) ---
+if check_password():
+    # Barra lateral
+    st.sidebar.image("https://cdn-icons-png.flaticon.com/512/1995/1995574.png", width=80)
+    st.sidebar.title("Menú Principal")
+    if st.sidebar.button("Tancar Sessió"):
+        st.session_state["password_correct"] = False
+        st.rerun()
+
+    # Títol de la web
+    st.title("🧠 Generador Intel·ligent d'Informes Psicopedagògics")
+    st.write("Benvingut al portal de redacció automatitzada.")
+    st.markdown("---")
+
+    # Columnes per al formulari
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        st.header("📥 Dades de l'alumne")
+        nom = st.text_input("Nom complet de l'alumne")
+        edat = st.number_input("Edat", min_value=0, max_value=18, value=8)
+        observacions = st.text_area("Observacions i notes de l'avaluació", height=200, 
+                                   placeholder="Escriu aquí el que has observat durant la sessió...")
+        
+        boto_generar = st.button("✨ Generar Informe")
+
+    with col2:
+        st.header("📄 Informe Resultant")
+        if boto_generar:
+            if nom and observacions:
+                with st.spinner('L'IA està redactant l'informe...'):
+                    time.sleep(2) # Simulació de processament
+                    st.success("Informe generat amb èxit!")
+                    
+                    text_final = f"""
+                    ### INFORME PSICOPEDAGÒGIC
+                    **Nom:** {nom}
+                    **Edat:** {edat} anys
+                    
+                    **ANÀLISI:**
+                    {observacions}
+                    
+                    **RECOMANACIONS:**
+                    1. Seguiment a l'escola.
+                    2. Reforç en les àrees identificades.
+                    """
+                    st.markdown(text_final)
+                    
+                    st.download_button(label="📥 Descarregar Informe", 
+                                       data=text_final, 
+                                       file_name=f"Informe_{nom}.txt")
+            else:
+                st.warning("Si us plau, omple el nom i les observacions.")
+        else:
+            st.info("Omple les dades de l'esquerra per veure l'esborrany de l'informe aquí.")
+
+    st.markdown("---")
+    st.caption("© 2026 Centro Psicopedagógico - Prototip de Prova")
