@@ -11,7 +11,7 @@ def inicializar_ia():
         try:
             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             # Usamos gemini-pro para evitar el error 404 del modelo flash
-            return genai.GenerativeModel('gemini-pro')
+            return genai.GenerativeModel('gemini-3-flash')
         except Exception as e:
             st.error(f"Error al configurar la IA: {e}")
             return None
