@@ -15,7 +15,7 @@ def configurar_ia():
         if "GEMINI_API_KEY" in st.secrets:
             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             # Usamos gemini-1.5-flash que es el más moderno y rápido
-            return genai.GenerativeModel('gemini-1.5-flash')
+            return genai.GenerativeModel('gemini-pro')
         else:
             st.error("❌ Error: No se encontró la clave 'GEMINI_API_KEY' en los Secrets de Streamlit.")
             return None
