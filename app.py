@@ -10,7 +10,7 @@ try:
     if "GEMINI_API_KEY" in st.secrets:
         api_key_gemini = st.secrets["GEMINI_API_KEY"]
         genai.configure(api_key=api_key_gemini)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
     else:
         st.warning("⚠️ Configura GEMINI_API_KEY en los Secrets de Streamlit.")
 except Exception as e:
